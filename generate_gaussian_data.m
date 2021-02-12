@@ -9,17 +9,17 @@ mu0=-1;
 mu1=1;
 sigma0=1;
 sigma1=1;
-% for i=1:package_num
-%     X0=normrnd(mu0,sigma0,[package_size,length]);
-%     X0=single(X0);
-%     file_str=['gaussain_H0_',mat2str(i),'_',mat2str(package_size),'_',mat2str(length)];
-%     save(file_str,'X0');
-%     X1=normrnd(mu1,sigma1,[package_size,length]);
-%     X1=single(X1);
-%     file_str=['gaussain_H1_',mat2str(i),'_',mat2str(package_size),'_',mat2str(length)];
-%     save(file_str,'X1');
-%     disp(i)
-% end
+for i=1:package_num
+    X0=normrnd(mu0,sigma0,[package_size,length]);
+    X0=single(X0);
+    file_str=['gaussain_H0_',mat2str(i),'_',mat2str(package_size),'_',mat2str(length)];
+    save(file_str,'X0');
+    X1=normrnd(mu1,sigma1,[package_size,length]);
+    X1=single(X1);
+    file_str=['gaussain_H1_',mat2str(i),'_',mat2str(package_size),'_',mat2str(length)];
+    save(file_str,'X1');
+    disp(i)
+end
 
 
 
