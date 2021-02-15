@@ -6,16 +6,18 @@ This repository presents the simulation code of paper T-SP-26702-2020, which is 
 
 ## Algorithm Design
 
+### Data Generation
+
 The simulation begins with a data generation script named `generate_gaussian_data.m`.
 This script generates a matrix that stores the observations of all sensors. The size of the matrix is `package_size` $\times$ `length`. The data is drawn from the Gaussian distribution whose parameter is in the paper. The matrix is stored as
 
-`'gaussain_H0_<index>_<package_size>_<length>.mat`
+`'gaussain_H0_<package_index>_<package_size>_<length>.mat`
 
 or
 
-`'gaussain_H1_<index>_<package_size>_<length>.mat`,
+`'gaussain_H1_<package_index>_<package_size>_<length>.mat`,
 
-where `package_size` means the number of sample tracks, `length` means the length(time steps) in a sample track, and `index` means the index number in a series of data matrix (The data is stored in several matrices for faster processing).
+where `package_size` means the number of sample tracks, `length` means the length(time steps) in a sample track. The data set used for one simulation is broken into packages, and `package_index` means the index number in a data set (The whole data set is stored in several files for faster processing).
 
 For the case with flip-attack, part of the samples is generated from the opposite distribution, as demonstrated in the paper. For example, if 10 sensors' background hypothesis are:
 
@@ -23,24 +25,52 @@ sensors $1-2$: $H_1$, sensors $3-9$: $H_0$, sensors $10$: $H_1$,
 
 the data file is named as
 
-`gaussain_attack_2H1_7H0_1H1_<package_size>_<length>.mat`.
+`gaussain_attack_2H1_7H0_1H1_<package_index>_<package_size>_<length>.mat`.
+
+If there is only one package in a data set, the `package_index` is omitted.
+
+### Hypothesis Testing and Plotting
+
+We use the algorithm VSPRT as an example.
+
+In `VSPRT.m` thresholds are chosen to run the test. `VSPRT.m` calls `VSPRT_error.m` and `VSPRT_delay.m` to calculate error probability and delay. In `VSPRT_delay.m`, the corresponding cumulative log-likelihood ratio is calculated and compared with the chosen threshold, and delay is recorded. In `VSPRT_error.m`, we use **importance sampling** for higher simulation accuracy. The changed probability measure is chosen as that of the opposite hypothesis.
+
+At the same time, in `VSPRT.m`, the error probability and delay are recorded for every specific threshold, and the figure is plotted using recorded data.
 
 ## Algorithm Running
 
 1. Set parameter and generate data using `generate_gaussian_data.m`.
 
-2. Calculate error probability and delay using `VSPRT.m` which calls `VSPRT_erro.m` and `VSPRT_delay.m` and records values for plotting.
+2. Calculate error probability and delay using `VSPRT.m` which calls `VSPRT_error.m` and `VSPRT_delay.m` and records values for plotting.
 
-Other Fusion Center algorithms are similar.
+Other Fusion Center algorithms are similar, and the name of the scripts are
+
+`<algorithm_name>.m`, `<algorithm_name>_error.m`, `<algorithm_name>_delay.m`.
 
 # Fully Distributed Algorithm
 
 ## Algorithm Design
 
-After the same procedure of data generation as in the last section, the sample is processed through `sample_resequence.m` to simulate the delay in a fully-distributed network. In this script, the samples are shifted along the time index. The number of steps shifted is the path length to the decider sensor from every senor.
+<!-- After the same procedure of data generation as in the last section, the sample is processed through `sample_resequence.m` to simulate the delay in a fully-distributed network. In this script, the samples are shifted along the time index, and the number of steps shifted in each sample track equals the path length in the graph from every sensor to the decider sensor. -->
 
-In the real sensor network, this delay should be at the process of voting transmission. However, in order to reuse the previous code in Fusion Center formulation, we produce the samples with corresponding delay, which is the same as the case where the delay is at the process of voting transmission.
+<!-- In the real sensor network, this delay should be at the process of voting transmission. However, in order to reuse the previous code in Fusion Center formulation, we produce the samples with the corresponding delay, which is the same as the case where the delay is at the process of voting transmission. -->
 
-After the procedure which we call "sample resequence", the corresponding cumulative log-likelihood ratio is calculated, and the error probability and delay are recorded for a specific threshold. The data are recorded for figure plotting.
+The process of data generation is the same. We introduce the other part and use the algorithm DVSPRT for an example.
+The difference is at `DVSPRT_delay.m`. In this script, the path length from each sensor to the decider sensor is calculated, recorded, and added to the stopping time of that of the Fusion Center algorithm. `DVSPRT_error.m` is the same as VSPRT.
 
 ## Algorithm Running
+
+1. Set parameter and generate data using `generate_gaussian_data.m`.
+
+2. Calculate error probability and delay using `DVSPRT.m` which calls `DVSPRT_error.m` and `DVSPRT_delay.m`, and records values for plotting.
+
+Other fully-distributed algorithms are similar, and the name of the scripts are
+
+`<algorithm_name>.m`, `<algorithm_name>_error.m`, `<algorithm_name>_delay.m`.
+
+
+# Others
+
+Fig. 2 in the paper is generated by `Theo1.m`.
+
+`graph_generate.m` is used to generate graph adjacency matrix and path length matrix for different topologies and the decider sensor.

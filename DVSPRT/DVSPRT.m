@@ -19,7 +19,7 @@ end
 path_length=path_length+path_length';
 %% 
 disp('loading data...')
-load('gaussain_H0_1_12000_5000.mat'); % hypothesis 0, attack sensor 1 and 2
+load('gaussain_H0_1_12000_5000.mat'); 
 load('gaussain_H1_1_12000_5000.mat'); % used for change of measure
 disp('loading data done')
 X0=X0(1:10000,1:5000);
